@@ -3,7 +3,6 @@ package suggest.spellchecker.controller;
 
 import java.io.IOException;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 import org.slf4j.Logger;
@@ -19,6 +18,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import suggest.spellchecker.exception.SuggestAPIRuntimeException;
+import suggest.spellchecker.pojo.Words;
 import suggest.spellchecker.service.IndexerService;
 import suggest.spellchecker.util.Loggers;
 
@@ -29,16 +29,13 @@ public class IndexController {
 	
 	private static Logger logger = LoggerFactory.getLogger(Loggers.INDEXER_LOGGER.toString());
 	
-	@Autowired
-	private IndexerService indexService;
+	@Autowired private IndexerService indexService;
 	
 	@Value("${spellchecker.initialize.buildindex:false}")
 	protected boolean initialIndex;
 	
 	@RequestMapping(method = RequestMethod.POST, value = "/indexfile", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<Boolean> buildInitialIndex(){
-		
-		ResponseEntity<Boolean> response = new ResponseEntity<>(initialIndex,HttpStatus.OK);
 		
 		if(initialIndex) {
 			logger.debug("indexfile is allowed");
@@ -52,14 +49,23 @@ public class IndexController {
 			logger.debug("indexfile is not allowed");
 		}
 		
+		ResponseEntity<Boolean> response = new ResponseEntity<>(initialIndex,HttpStatus.OK);
+		
 		return response;
 	}
 	
 	
 	@RequestMapping(method = RequestMethod.POST, value = "/indexwords", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<Boolean> indexWords(@RequestBody List<String> words){
+	public ResponseEntity<Boolean> indexWords(@RequestBody Words words ){
 		
-		new HashSet<String>(words);
+		Set<String> uniqueWords = new HashSet<>(words.getWords());
+		
+		try {
+			indexService.appendWords(uniqueWords);
+		} catch (IOException e) {
+			logger.error(e.getMessage(),e);
+			throw new SuggestAPIRuntimeException("IOException");
+		}
 		
 		ResponseEntity<Boolean> response = new ResponseEntity<>(initialIndex,HttpStatus.OK);
 		
