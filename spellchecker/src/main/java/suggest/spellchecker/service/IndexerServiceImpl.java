@@ -90,6 +90,7 @@ public class IndexerServiceImpl implements IndexerService{
 					logger.debug("Word -> "+word +" doesn't exist in dictionary to trying to add to index");
 					Document doc = createDocument(word, getMin(word.length()), getMax(word.length()));
 					writer.addDocument(doc);
+					writer.commit();
 				}
 			}	
 		}
