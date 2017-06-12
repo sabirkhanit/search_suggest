@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+
+	<include resource="org/springframework/boot/logging/logback/base.xml" />
+
+	<property name="LOG_PATH"  value="/var/log/spellchecker" />
+
+	<timestamp key="timestamp-by-second" datePattern="yyyyMMdd'T'HHmmss" />
+
+	<appender name="Console-Appender" class="ch.qos.logback.core.ConsoleAppender">
+		<layout>
+			<pattern>%date %level [%thread] %logger{10} [%file:%line] %msg%n
+			</pattern>
+		</layout>
+	</appender>
+
+	<appender name="SpellCheckerService"
+		class="ch.qos.logback.core.rolling.RollingFileAppender">
+		<file>${LOG_PATH}/SpellCheckerService.log</file>
+		<rollingPolicy class="ch.qos.logback.core.rolling.FixedWindowRollingPolicy">
+			<fileNamePattern>${LOG_PATH}/SpellCheckerService.%i.log
+			</fileNamePattern>
+			<minIndex>1</minIndex>
+			<maxIndex>600</maxIndex>
+		</rollingPolicy>
+
+		<triggeringPolicy
+			class="ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy">
+			<maxFileSize>5MB</maxFileSize>
+		</triggeringPolicy>
+		<encoder>
+			<pattern>%date %level [%thread] %logger{10} [%file:%line] %msg%n
+			</pattern>
+			<outputPatternAsHeader>true</outputPatternAsHeader>
+		</encoder>
+	</appender>
+	
+	<appender name="SpellCheckerBuildIndexService"
+		class="ch.qos.logback.core.rolling.RollingFileAppender">
+		<file>${LOG_PATH}/SpellCheckerBuildIndexService.log</file>
+		<rollingPolicy class="ch.qos.logback.core.rolling.FixedWindowRollingPolicy">
+			<fileNamePattern>${LOG_PATH}/SpellCheckerBuildIndexService.%i.log
+			</fileNamePattern>
+			<minIndex>1</minIndex>
+			<maxIndex>600</maxIndex>
+		</rollingPolicy>
+
+		<triggeringPolicy
+			class="ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy">
+			<maxFileSize>5MB</maxFileSize>
+		</triggeringPolicy>
+		<encoder>
+			<pattern>%date %level [%thread] %logger{10} [%file:%line] %msg%n
+			</pattern>
+			<outputPatternAsHeader>true</outputPatternAsHeader>
+		</encoder>
+	</appender>
+
+	<logger name="SpellCheckerLogger" level="debug" additivity="false"> 
+		<appender-ref ref="SpellCheckerService" />
+	</logger>
+	
+	<logger name="SpellCheckerIndexerLogger" level="debug" additivity="false"> 
+		<appender-ref ref="SpellCheckerBuildIndexService" />
+	</logger>
+	
+	
+	<root>
+		<appender-ref ref="Console-Appender" />
+	</root>
+</configuration>
