@@ -16,14 +16,16 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import suggest.spellchecker.exception.SuggestAPIRuntimeException;
+import suggest.spellchecker.pojo.SuggestAPIResponse;
 import suggest.spellchecker.service.SuggestService;
 import suggest.spellchecker.util.Loggers;
+import suggest.spellchecker.util.Message;
 
 
 @RestController
 @RequestMapping("/suggest")
 @Validated
-public class SpellSuggestController {
+public class SuggestController {
 	
 	private static Logger logger = LoggerFactory.getLogger(Loggers.SUGGEST_LOGGER.toString());
 	
@@ -31,31 +33,26 @@ public class SpellSuggestController {
 	private SuggestService suggestService;
 	
 	@RequestMapping(method = RequestMethod.GET, value = "/singleword", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<String[]> suggest(@NotEmpty @RequestParam String word){
-		
-		String[] results = null;
+	public ResponseEntity<SuggestAPIResponse<String[]>> suggest(@NotEmpty @RequestParam String word){
 		
 		logger.debug("Suggest API is called for word : "+word);
 		
 		try {
-			results = suggestService.singleWordSuggest(word);
 			
-			logger.debug("Results after search");
+			String[] results = suggestService.singleWordSuggest(word);
+			
+			logger.debug("Results after search:");
 			
 			for(String result : results ){
 				logger.debug(result);
 			}
 			
+			return new ResponseEntity<>(new SuggestAPIResponse<>(HttpStatus.OK,Message.SUCCESS.toString(),results),HttpStatus.OK);
 			
 		} catch (IOException e) {
 			logger.error(e.getMessage(),e);
-			throw new SuggestAPIRuntimeException("IOException");
+			throw new SuggestAPIRuntimeException(Message.IOEXCEPTION.toString());
 		}
 		
-		return new ResponseEntity<>(results,HttpStatus.OK);
-		
 	}
-	
-	
-
 }

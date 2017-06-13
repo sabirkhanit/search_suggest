@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import suggest.spellchecker.exception.SuggestAPIRuntimeException;
 import suggest.spellchecker.pojo.SuggestAPIResponse;
+import suggest.spellchecker.util.Message;
 
 @RestControllerAdvice
 public class SuggestAPIExceptionHandler {
@@ -39,7 +40,7 @@ public class SuggestAPIExceptionHandler {
 		for (ObjectError error : exception.getBindingResult().getGlobalErrors()) {
 			errors.add(error.getObjectName() + ": " + error.getDefaultMessage());
 		}
-		SuggestAPIResponse apiError = new SuggestAPIResponse(HttpStatus.BAD_REQUEST, "MESSAGE_REQUEST_VALIDATION_FAILURE", errors);
+		SuggestAPIResponse apiError = new SuggestAPIResponse(HttpStatus.BAD_REQUEST, Message.REQUEST_VALIDATION_FAILURE.toString(), errors);
 		return new ResponseEntity<>(apiError,HttpStatus.BAD_REQUEST);
 		
 	}
@@ -62,7 +63,7 @@ public class SuggestAPIExceptionHandler {
 			errors.add(" " + count + "." + violation.getMessage());
 			++count;
 		}
-		SuggestAPIResponse apiError = new SuggestAPIResponse(HttpStatus.BAD_REQUEST, "MESSAGE_REQUEST_VALIDATION_FAILURE", errors);
+		SuggestAPIResponse apiError = new SuggestAPIResponse(HttpStatus.BAD_REQUEST, Message.REQUEST_VALIDATION_FAILURE.toString(), errors);
 		return new ResponseEntity<>(apiError,HttpStatus.BAD_REQUEST);
 		
 	}
@@ -76,7 +77,7 @@ public class SuggestAPIExceptionHandler {
 	public ResponseEntity<SuggestAPIResponse> handle(SuggestAPIRuntimeException ex) {
 		List<String> errors = new ArrayList<>();
 		errors.add(ex.getLocalizedMessage());
-		SuggestAPIResponse apiError = new SuggestAPIResponse(HttpStatus.INTERNAL_SERVER_ERROR, "MESSAGE_INTERNAL_SERVER_ERROR", errors);
+		SuggestAPIResponse apiError = new SuggestAPIResponse(HttpStatus.INTERNAL_SERVER_ERROR, Message.INTERNAL_SERVER_ERROR.toString(), errors);
 		return new ResponseEntity<>(apiError,HttpStatus.INTERNAL_SERVER_ERROR);
 	}
 

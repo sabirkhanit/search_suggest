@@ -5,9 +5,9 @@ import java.util.Set;
 
 public interface IndexerService {
 
-	public void indexWordsFile() throws IOException;
+	public Boolean indexWordsFile() throws IOException;
 	
-	public void addWords(Set<String> words) throws IOException;
+	public Boolean addWords(Set<String> words) throws IOException;
 	
-	public void removeWords(Set<String> words) throws IOException;
+	public Boolean removeWords(Set<String> words) throws IOException;
 }

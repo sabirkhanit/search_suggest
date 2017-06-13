@@ -17,6 +17,7 @@ import org.apache.lucene.index.IndexOptions;
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.IndexWriterConfig;
 import org.apache.lucene.index.IndexWriterConfig.OpenMode;
+import org.apache.lucene.index.Term;
 import org.apache.lucene.search.spell.PlainTextDictionary;
 import org.apache.lucene.search.spell.SpellChecker;
 import org.apache.lucene.store.Directory;
@@ -52,9 +53,11 @@ public class IndexerServiceImpl implements IndexerService{
 	private String indexLocation;
 	
 	@Override
-	public void indexWordsFile() throws IOException{
+	public Boolean indexWordsFile() throws IOException{
 		
 		logger.debug("Words File Location : "+wordsLocation+" and fileName ="+wordsFileName);
+		
+		if(isFileValid()){
 		
 		synchronized(modifyCurrentIndexLock){
 		
@@ -67,13 +70,20 @@ public class IndexerServiceImpl implements IndexerService{
 			IndexWriterConfig wConfig = new IndexWriterConfig(analyzer);
 			wConfig.setOpenMode(OpenMode.CREATE_OR_APPEND);
 			spellchecker.indexDictionary(ptDictionary, wConfig, true);
-		} 
 		}
-		return;
+		logger.debug("Provided words file indexed successfully");
+		
+		}
+		return true; 
+		}else{
+			logger.debug("Provided words file is not a valid file");
+			return false;
+		}
+		
 	}
 	
 	@Override
-	public void addWords(Set<String> words) throws IOException{
+	public Boolean addWords(Set<String> words) throws IOException{
 		
 		synchronized(modifyCurrentIndexLock){
 		
@@ -92,15 +102,17 @@ public class IndexerServiceImpl implements IndexerService{
 					writer.addDocument(doc);
 					writer.commit();
 				}
-			}	
+			}
+			logger.debug("All valid words added to dictionary");
+			return true;
 		}
 		
 		}
-		logger.debug("All valid the words added to dictionary");
+		
 	}
 	
 	@Override
-	public void removeWords(Set<String> words) throws IOException{
+	public Boolean removeWords(Set<String> words) throws IOException{
 		
 		synchronized(modifyCurrentIndexLock){
 		
@@ -112,21 +124,17 @@ public class IndexerServiceImpl implements IndexerService{
 			IndexWriter writer = new IndexWriter(spellIndex, wConfig);)
 		{
 			for(String word:words){
-				if(!spellchecker.exist(word)){
-					
-					logger.debug("Word -> "+word +" doesn't exist in dictionary to trying to add to index");
-					Document doc = createDocument(word, getMin(word.length()), getMax(word.length()));
-					
-					//writer.deleteDocuments(new Term());
-					
-					writer.addDocument(doc);
+				if(spellchecker.exist(word)){
+					logger.debug("Word -> "+word +" does exist in dictionary so trying to remove from index");
+					writer.deleteDocuments(new Term(F_WORD,word));
 					writer.commit();
 				}
-			}	
+			}
+			logger.debug("Valid words out of given words successfuly removed from dictionary");
+			return true;
 		}
 		
 		}
-		logger.debug("All valid the words added to dictionary");
 	}
 	
 	private Path getFilePath(){
@@ -204,4 +212,8 @@ public class IndexerServiceImpl implements IndexerService{
 	    }
 	  }
 
+	private Boolean isFileValid(){
+		//It needs to be seen if something needs to be palced here
+		return true;
+	}
 }

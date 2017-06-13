@@ -21,17 +21,15 @@ public class SuggestServiceImpl implements SuggestService {
 	@Override
 	public String[] singleWordSuggest(String word) throws IOException {
 		
-		String[] response ;
-		
 		try(Directory spellIndex = FSDirectory.open(new File(indexLocation).toPath());
 				SpellChecker spellchecker = new SpellChecker(spellIndex); ) {	
 			if (!spellchecker.exist(word)) {
-				response = spellchecker.suggestSimilar(word, suggestCount);
+				return spellchecker.suggestSimilar(word, suggestCount);
 			}else{
-				response=new String[]{word};
+				return new String[]{word};
 			}
 		}
-		return response;
+		
 	}
 
 }
