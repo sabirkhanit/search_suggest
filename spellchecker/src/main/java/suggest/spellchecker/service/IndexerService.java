@@ -7,5 +7,7 @@ public interface IndexerService {
 
 	public void indexWordsFile() throws IOException;
 	
-	public void appendWords(Set<String> words) throws IOException;
+	public void addWords(Set<String> words) throws IOException;
+	
+	public void removeWords(Set<String> words) throws IOException;
 }

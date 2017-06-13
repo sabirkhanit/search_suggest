@@ -35,7 +35,7 @@ public class IndexController {
 	protected boolean initialIndex;
 	
 	@RequestMapping(method = RequestMethod.POST, value = "/indexfile", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<Boolean> buildInitialIndex(){
+	public ResponseEntity<Boolean> buildBaselineIndex(){
 		
 		if(initialIndex) {
 			logger.debug("indexfile is allowed");
@@ -55,13 +55,31 @@ public class IndexController {
 	}
 	
 	
-	@RequestMapping(method = RequestMethod.POST, value = "/indexwords", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<Boolean> indexWords(@RequestBody Words words ){
+	@RequestMapping(method = RequestMethod.POST, value = "/addwords", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+	public ResponseEntity<Boolean> addWords(@RequestBody Words words ){
 		
 		Set<String> uniqueWords = new HashSet<>(words.getWords());
 		
 		try {
-			indexService.appendWords(uniqueWords);
+			indexService.addWords(uniqueWords);
+		} catch (IOException e) {
+			logger.error(e.getMessage(),e);
+			throw new SuggestAPIRuntimeException("IOException");
+		}
+		
+		ResponseEntity<Boolean> response = new ResponseEntity<>(initialIndex,HttpStatus.OK);
+		
+		
+		return response;
+	}
+	
+	@RequestMapping(method = RequestMethod.POST, value = "/removewords", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+	public ResponseEntity<Boolean> removeWords(@RequestBody Words words){
+		
+		Set<String> uniqueWords = new HashSet<>(words.getWords());
+		
+		try {
+			indexService.removeWords(uniqueWords);
 		} catch (IOException e) {
 			logger.error(e.getMessage(),e);
 			throw new SuggestAPIRuntimeException("IOException");
