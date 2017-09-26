@@ -22,7 +22,13 @@ import org.apache.lucene.search.TermRangeQuery;
 import org.apache.lucene.search.TopDocs;
 import org.apache.lucene.store.FSDirectory;
 
-
+/**
+ * 
+ * @author mdsabir.khan
+ * To demonstrate solution for - https://stackoverflow.com/questions/46399963/make-lucene-string-field-range-searchable
+ * Make lucene string field range searchable
+ *
+ */
 public class App 
 {
 	private static String versionField = "version";
